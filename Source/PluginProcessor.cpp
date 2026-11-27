@@ -68,6 +68,15 @@ juce::AudioProcessorValueTreeState::ParameterLayout SimplySynthyProcessor::creat
     return { ps.begin(), ps.end() };
 }
 
+#if SS_DIAG
+#include <cstdio>
+static void ssCrashHandler (void*)
+{
+    std::fprintf (stderr, "\n=== SimplySynthy crash ===\n%s\n", juce::SystemStats::getStackBacktrace().toRawUTF8());
+    std::fflush (stderr);
+}
+#endif
+
 SimplySynthyProcessor::SimplySynthyProcessor()
     : AudioProcessor (BusesProperties().withOutput ("Output", juce::AudioChannelSet::stereo(), true)),
       apvts (*this, nullptr, "SimplySynthy", createLayout())
@@ -81,6 +90,10 @@ SimplySynthyProcessor::SimplySynthyProcessor()
         synth.addVoice (new SynthVoice());
     synth.addSound (new SynthSound());
     synth.setNoteStealingEnabled (true);
+
+   #if SS_DIAG
+    juce::SystemStats::setApplicationCrashHandler (ssCrashHandler);
+   #endif
 }
 
 bool SimplySynthyProcessor::isBusesLayoutSupported (const BusesLayout& layouts) const

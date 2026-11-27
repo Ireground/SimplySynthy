@@ -35,7 +35,8 @@ target_compile_definitions(SimplySynthy PUBLIC
     JUCE_WEB_BROWSER=0
     JUCE_USE_CURL=0
     JUCE_VST3_CAN_REPLACE_VST2=0
-    JUCE_DISPLAY_SPLASH_SCREEN=0)
+    JUCE_DISPLAY_SPLASH_SCREEN=0
+    SS_DIAG=$<BOOL:${SS_DIAG}>)
 
 target_link_libraries(SimplySynthy
     PRIVATE

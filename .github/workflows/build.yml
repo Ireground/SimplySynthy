@@ -30,6 +30,15 @@ jobs:
           .\pluginval\pluginval.exe --strictness-level 10 --verbose --timeout-ms 600000 --output-dir pluginval-logs --validate "build/SimplySynthy_artefacts/Release/VST3/SimplySynthy.vst3"
           if ($LASTEXITCODE -ne 0) { exit 1 }
 
+      - name: Diagnostic build (only if pluginval failed)
+        if: failure()
+        shell: pwsh
+        run: |
+          cmake -B diag -A x64 -DSS_DIAG=ON
+          cmake --build diag --config RelWithDebInfo --parallel
+          .\pluginval\pluginval.exe --strictness-level 10 --validate-in-process --verbose --timeout-ms 600000 --validate "diag/SimplySynthy_artefacts/RelWithDebInfo/VST3/SimplySynthy.vst3" 2>&1 | Select-Object -Last 120
+          Get-ChildItem pluginval-logs -ErrorAction SilentlyContinue | ForEach-Object { Get-Content $_.FullName -Tail 60 }
+
       - name: Upload pluginval log
         if: always()
         uses: actions/upload-artifact@v4
