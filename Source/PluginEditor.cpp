@@ -286,9 +286,9 @@ void SynthScreen::mouseDown (const juce::MouseEvent& e)
     const int cur = proc.currentPreset.load();
 
     if (prevArea().contains (e.getPosition()))
-        proc.setCurrentProgram ((cur - 1 + n) % n);
+        proc.loadPreset ((cur - 1 + n) % n);
     else if (nextArea().contains (e.getPosition()))
-        proc.setCurrentProgram ((cur + 1) % n);
+        proc.loadPreset ((cur + 1) % n);
     else if (nameArea().contains (e.getPosition()))
         showMenu();
     else
@@ -319,7 +319,7 @@ void SynthScreen::showMenu()
                         [safe] (int result)
                         {
                             if (safe == nullptr || result <= 0) return;
-                            safe->proc.setCurrentProgram (result - 1);
+                            safe->proc.loadPreset (result - 1);
                             safe->repaint();
                         });
 }

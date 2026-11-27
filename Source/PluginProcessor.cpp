@@ -255,9 +255,9 @@ void SimplySynthyProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce
 }
 
 // ---------------- presets ----------------
-int SimplySynthyProcessor::getNumPrograms() { return (int) getPresets().size(); }
+int SimplySynthyProcessor::getNumPresets() { return (int) getPresets().size(); }
 
-const juce::String SimplySynthyProcessor::getProgramName (int index)
+juce::String SimplySynthyProcessor::getPresetName (int index)
 {
     const auto& ps = getPresets();
     if (! juce::isPositiveAndBelow (index, (int) ps.size())) return {};
@@ -267,7 +267,7 @@ const juce::String SimplySynthyProcessor::getProgramName (int index)
          + " - " + ps[(size_t) index].name;
 }
 
-void SimplySynthyProcessor::setCurrentProgram (int index)
+void SimplySynthyProcessor::loadPreset (int index)
 {
     const auto& ps = getPresets();
     if (! juce::isPositiveAndBelow (index, (int) ps.size()))
@@ -286,7 +286,9 @@ void SimplySynthyProcessor::setCurrentProgram (int index)
             if (param->paramID == kv.first)
                 norm = param->convertTo0to1 (kv.second);
 
+        param->beginChangeGesture();
         param->setValueNotifyingHost (norm);
+        param->endChangeGesture();
     }
 }
 
@@ -307,7 +309,7 @@ void SimplySynthyProcessor::setStateInformation (const void* data, int size)
         if (xml->hasTagName (apvts.state.getType()))
         {
             auto tree = juce::ValueTree::fromXml (*xml);
-            currentPreset.store (juce::jlimit (0, getNumPrograms() - 1, (int) tree.getProperty ("preset", 0)));
+            currentPreset.store (juce::jlimit (0, getNumPresets() - 1, (int) tree.getProperty ("preset", 0)));
             editorWidth.store (juce::jlimit (630, 1800, (int) tree.getProperty ("uiWidth", 900)));
             apvts.replaceState (tree);
         }

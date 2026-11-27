@@ -25,11 +25,17 @@ public:
     bool isMidiEffect() const override { return false; }
     double getTailLengthSeconds() const override { return 4.0; }
 
-    int getNumPrograms() override;
-    int getCurrentProgram() override { return currentPreset.load(); }
-    void setCurrentProgram (int index) override;
-    const juce::String getProgramName (int index) override;
+    // Presets live in our own menu (not as host programs): host-driven program
+    // changes from background threads are a known crash source in VST3 hosts.
+    int getNumPrograms() override { return 1; }
+    int getCurrentProgram() override { return 0; }
+    void setCurrentProgram (int) override {}
+    const juce::String getProgramName (int) override { return "Default"; }
     void changeProgramName (int, const juce::String&) override {}
+
+    static int getNumPresets();
+    static juce::String getPresetName (int index);
+    void loadPreset (int index);   // call from the message thread
 
     void getStateInformation (juce::MemoryBlock&) override;
     void setStateInformation (const void*, int) override;
